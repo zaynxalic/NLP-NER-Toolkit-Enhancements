@@ -1,0 +1,435 @@
+RESTful API -> GET JSON object
+
+/ | *** | /docs-repo/_NLP-NER/
+GET 
+Use-Case_1
+Use-Case_2
+...
+
+/Use-Case | /DoF
+GET
+Dataset_1
+Dataset_2
+...
+
+/Use-Case/Dataset | /DoF/PBS-Data
+GET
+Filename_1
+Filename_2
+...
+
+/Use-Case/Dataset?query=DOFA_PBS_02 | /DoF/PBS-Data
+GET
+Filename_1 - hash_1
+Filename_2 - hash_2
+...
+
+/Use-Case/Dataset/Filename | /DoF/PBS-Data/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf
+/Use-Case/Dataset/Filename | /DoF/PBS-Data/6a3c5e14bd898f
+If (Filename has suffix "MEL+NER_output") -> JSON file has full metadata with text content and NER results.
+
+/Use-Case/Dataset/Filename/_gm
+"General-Metadata"
+/Use-Case/Dataset/Filename/_sm
+"Specific-Metadata"
+../_sm/_ta/_text
+"Specific-Metadata"/"text-analysis"/"clean-text"
+../_sm/_ta/_pm
+"Specific-Metadata"/"text-analysis"/"pattern-matching"
+../_sm/_ta/_kw
+"Specific-Metadata"/"text-analysis"/"Tokenized-text$Keywords"
+
+/Use-Case/Dataset/Filename/Model | /DoF/PBS-Data/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf/spacy_md_model
+/Use-Case/Dataset/Filename/Model | /DoF/PBS-Data/6a3c5e14bd898f/spacy_md_model
+GET ->
+"_stats": {
+		"start-timestamp": "2020-12-21 21:31:01.374461",
+		"end-timestamp": "2020-12-21 21:31:02.624521",
+		"duration": 1.25006,
+		"number-of-entities": {
+			"PERSON": 63,
+			"NORP": 11,
+			"FAC": 18,
+			"ORG": 141,
+			"GPE": 28,
+			"LOC": 18,
+			"PRODUCT": 12,
+			"EVENT": 2,
+			"WORK_OF_ART": 1,
+			"LAW": 47,
+			"DATE": 78,
+			"PERCENT": 3,
+			"QUANTITY": 5,
+			"ORDINAL": 1,
+			"CARDINAL": 145
+		}
+	}
+
+/Use-Case/Dataset/Filename/Model/_output | /DoF/PBS-Data/6a3c5e14bd898f/spacy_md_model/_output
+/Use-Case/Dataset/Filename/Model/_stats | /DoF/PBS-Data/6a3c5e14bd898f/spacy_md_model/_stats
+/Use-Case/Dataset/Filename/Model/_output/Category | /DoF/PBS-Data/6a3c5e14bd898f/spacy_md_model/_output/PERSON
+?_stats
+/Use-Case/Dataset/Filename/Model/_output/Category/Entity | /DoF/PBS-Data/6a3c5e14bd898f/spacy_md_model/_output/PERSON/Carter
+/Use-Case/Dataset/Filename/Model/_output/Category/Entity?indexes | /DoF/PBS-Data/6a3c5e14bd898f/spacy_md_model/_output/PERSON/Carter?indexes
+?indexes
+?start_index
+?end_index
+?sentence
+.../Filename/_summary/Entity
+GET -> return proper JSON object
+
+Enhance the search capabilities, primarily, in the following type of path:
+/Use-Case/Dataset/Filename/Model/_output/Category/Entity
+
+We need the capability to search for the NER entity results, including substrings (startsWith, endsWith , substring) and exactMatch, in the following way:
+/DoF/.../spacy_md_model/_output/PERSON/Car*: all entities that start with Car
+/DoF/.../spacy_md_model/_output/PERSON/Carter: exact match for entity Carter
+/DoF/.../spacy_md_model/_output/PERSON/*ter: all entities that finish with ter
+/DoF/.../spacy_md_model/_output/PERSON/*arte*: all entities that have the substring arte
+
+
+** POS tagging task & Dependency Parsing **
+GET ~/FILENAME/MODEL?PT_DP_tasks&tool=(stanza | spacy | * | all)&replace=(0 | 1) # default values and edge cases
+--> JSON file.  Naming the result:
+[FILENAME]--NER--(model)--(PT_DP_tasks-stanza)--[HASH].json
+[FILENAME]--NER--(model)--(PT_DP_tasks-spaCy)--[HASH].json
+[FILENAME]--NER--(model)--(PT_DP_tasks-all)--[HASH].json
+
+[FILENAME]-MEL+NER_output-(PT_DP_tasks-stanza).json
+[FILENAME]-MEL+NER_output-(PT_DP_tasks-spaCy).json
+[FILENAME]-MEL+NER_output-(PT_DP_tasks-all).json
+
+{
+	"entity": "Australia",
+	"start_index": 198,
+	"end_index": 207,
+	"sentence": "8 FINANCE Portfolio Budget Initiatives and Explanations of Appropriations Specified by Outcomes and Programs by Entity Commonwealth of Australia 2017 ISBN 978 1 76044 849 3 This publication is available for your use under a Creative Commons BY Attribution 3"
+	"POS-tagging":
+	{
+		"stanza": {
+			// POS tagging table (results)
+		},
+		"spaCy": {
+			// POS tagging table (results)
+		}
+	},
+	"dependency-parsing":
+	{
+		"stanza": {
+			// dependency-parsing table (results)
+		},
+		"spaCy": {
+			// dependency-parsing table (results)
+		}
+	}
+},
+
+
+** coref **
+[MEL+NER_output]
+GET ~/FILENAME?CoRef_task&replace=(0 | 1)&retrieve=(full | corefs | sentences)
+[regular outputs]
+GET ~/FILENAME/MODEL?CoRef_task&replace=(0 | 1)&retrieve=(full | corefs | sentences)
+(1) Generate (save file to disk) all the results from the Stanza tool --> large JSON file.
+(2) (replace=0): If the result file already exist, then just open the file.
+(3) (replace=1): do (1)
+(4) Retrieve/display the results: "full", "corefs", "sentences"
+folder=/_NLP-NER/DoF/PBS-Data/
+fileID:
+	. filename =2019-20%20PBS%20-%20Communications%20and%20the%20Arts%20Portfolio.pdf
+	. model    =stanford_class3_model
+	. category =LOCATION
+	. entity   =Australia
+	. start_index =8121
+	. end_index   =8130
+--> JSON file.  Naming the result:
+[FILENAME]--NER--(model)--(PT_DP_tasks-stanza)--[HASH].json
+[FILENAME]--(model)--(category)--(entity)--(start_index)--"(coref)".json
+[FILENAME]-MEL+NER_output-(coref).json
+2019-20_PBS_-_Communications_and_the_Arts_Portfolio.pdf--stanford_class3_model--LOCATION--Australia--8121--(coref).json
+...
+
+
+===
+{
+* Label classification:
++ use an upper level ontology: BFO
++ mapping between the labels of the models
++ calculate the right scores (precision, recall)... evaluate the model metrics for each category/label
+
+
+	"label-classification": { # based on spaCy categories
+		"PERSON": # - People, including fictional.
+		{
+			[
+				"stanford|PERSON",
+				"stanza|PERSON",
+				... # 21 models
+			]
+		}
+		"NORP": # - Nationalities or religious or political groups.
+		{
+			[
+				"stanford|Location",
+				"stanza|PERSON",
+				... # 21 models
+			]
+		}
+		3. FAC - Buildings, airports, highways, bridges, etc.
+		4. ORG - Companies, agencies, institutions, etc.
+		5. GPE - Countries, cities, states.
+		6. LOC - Non-GPE locations, mountain ranges, bodies of water.
+		7. RODUCT - Objects, vehicles, foods, etc. (Not services.)
+		8. EVENT - Named hurricanes, battles, wars, sports events, etc.
+		9. WORK_OF_ART - Titles of books, songs, etc.
+		10. LAW - Named documents made into laws.
+		11. LANGUAGE - Any named language.
+		12. DATE - Absolute or relative dates or periods.
+		13. TIME - Times smaller than a day.
+		14. PERCENT - Percentage, including ”%“.
+		15. MONEY - Monetary values, including unit.
+		16. QUANTITY - Measurements, as of weight or distance.
+		17. ORDINAL - - “first”, “second”, etc.
+		18. CARDINAL"
+	}
+}
+
+===
+GET /Use-Case/Dataset/Filename?NER-Summary
+
+# [Filename]--NER--(summary)--[hash ID].json
+{
+    "General-Metadata": {
+        "FILENAME": "2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "SEPARATOR": "\\",
+        "PARENT": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA",
+        "CANONICALPATH": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "ABSOLUTEPATH": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "FILE": "True",
+        "DIRECTORY": "False",
+        "FILELENGTH": 143073,
+        "EXTENSION": "pdf",
+        "TYPE": "application/pdf",
+        "MODIFIED": "2002-08-16 14:45:50",
+        "DATE": "20020816",
+        "DATEPATTERN": "yyyyMMdd",
+        "TIME": "144550",
+        "TIMEPATTERN": "HHmmSS",
+        "CREATED": "2020-11-16 13:44:15.535858",
+        "CREATED-DATE": "20201116",
+        "CREATED-TIME": "134415"
+    },
+	"NLP-NER-Aggregated-Summary": {
+		"Administrative Arrangement Order AAO": [
+						{
+							"model": "stanford_class7_model",
+							"category": "ORGANIZATION",
+							"count": 1
+						},
+						{
+							"model": "stanford_class4_model",
+							"category": "ORGANIZATION",
+							"count": 1
+						},
+						...
+						{
+							"total": 2
+						}
+					]
+
+		   ...
+	}
+}
+
+# [Filename]--NER--(summary)--(stats)--[hash ID].json
+{
+    "General-Metadata": {
+        "FILENAME": "2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "SEPARATOR": "\\",
+        "PARENT": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA",
+        "CANONICALPATH": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "ABSOLUTEPATH": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "FILE": "True",
+        "DIRECTORY": "False",
+        "FILELENGTH": 143073,
+        "EXTENSION": "pdf",
+        "TYPE": "application/pdf",
+        "MODIFIED": "2002-08-16 14:45:50",
+        "DATE": "20020816",
+        "DATEPATTERN": "yyyyMMdd",
+        "TIME": "144550",
+        "TIMEPATTERN": "HHmmSS",
+        "CREATED": "2020-11-16 13:44:15.535858",
+        "CREATED-DATE": "20201116",
+        "CREATED-TIME": "134415"
+    },
+	"NLP-NER-Aggregated-Summary": {
+		"Administrative Arrangement Order AAO":
+			"tnnt:Location": {
+				# Edge cases:
+				"Maximum": {
+					"Model": "spacy_md_model",
+					"Value": 12
+				},
+				"Minumum": {
+					"Model": "stanford_class3_model",
+					"Value": 1
+				}
+				
+				# Distribution
+				"Frequencies": [ list of "counts" ]
+				
+				# Central Tendency
+				"Mean":
+				"Median":
+				"Mode":
+				
+				# Dispersion
+				"Standard-Deviation":
+				"Variance":
+			},
+			"tnnt:GPE": { ... },
+			{
+			}
+		   ...
+	}
+}
+
+# [Filename]--NER--(summary-by-category)--[hash ID].json
+{
+    "General-Metadata": {
+        "FILENAME": "2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "SEPARATOR": "\\",
+        "PARENT": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA",
+        "CANONICALPATH": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "ABSOLUTEPATH": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "FILE": "True",
+        "DIRECTORY": "False",
+        "FILELENGTH": 143073,
+        "EXTENSION": "pdf",
+        "TYPE": "application/pdf",
+        "MODIFIED": "2002-08-16 14:45:50",
+        "DATE": "20020816",
+        "DATEPATTERN": "yyyyMMdd",
+        "TIME": "144550",
+        "TIMEPATTERN": "HHmmSS",
+        "CREATED": "2020-11-16 13:44:15.535858",
+        "CREATED-DATE": "20201116",
+        "CREATED-TIME": "134415"
+    },
+	"NLP-NER-Aggregated-Summary-By-Category": {
+		"tnnt:Organisation": [
+			"Administrative Arrangement Order AAO":
+			{
+				{
+					"model": "stanford_class7_model",
+					"count": 1
+				},
+				{
+					"model": "stanford_class4_model",
+					"count": 1
+				},
+				...
+				{
+					"total": 2
+				}
+			}
+		]
+		...
+	}
+}
+
+# [Filename]--NER--(summary-by-category)--(stats)--[hash ID].json
+{
+    "General-Metadata": {
+        "FILENAME": "2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "SEPARATOR": "\\",
+        "PARENT": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA",
+        "CANONICALPATH": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "ABSOLUTEPATH": "/data/python-resources/AGRIF/docs-repo/DoF-PBS-data/History/PBS (Historical)/2002-03/DOFA/2002_2003_DOFA_PBS_02_Part_B_Port_overview.pdf",
+        "FILE": "True",
+        "DIRECTORY": "False",
+        "FILELENGTH": 143073,
+        "EXTENSION": "pdf",
+        "TYPE": "application/pdf",
+        "MODIFIED": "2002-08-16 14:45:50",
+        "DATE": "20020816",
+        "DATEPATTERN": "yyyyMMdd",
+        "TIME": "144550",
+        "TIMEPATTERN": "HHmmSS",
+        "CREATED": "2020-11-16 13:44:15.535858",
+        "CREATED-DATE": "20201116",
+        "CREATED-TIME": "134415"
+    },
+	"NLP-NER-Aggregated-Summary-By-Category-Stats": {
+		"tnnt:Organisation": [
+			"Administrative Arrangement Order AAO":
+			{
+				# Edge cases:
+				"Maximum": {
+					"Model": "spacy_md_model",
+					"Value": 12
+				},
+				"Minumum": {
+					"Model": "stanford_class3_model",
+					"Value": 1
+				}
+				
+				# Distribution
+				"Frequencies": [ list of "counts" ]
+				
+				# Central Tendency
+				"Mean":
+				"Median":
+				"Mode":
+				
+				# Dispersion
+				"Standard-Deviation":
+				"Variance":
+			}
+		],
+		"General-Stats": {
+			{
+				# Edge cases:
+				"Maximum": {
+					"Model": "spacy_md_model",
+					"Value": 12
+				},
+				"Minumum": {
+					"Model": "stanford_class3_model",
+					"Value": 1
+				}
+				
+				# Distribution
+				"Frequencies": [ list of "counts" ]
+				
+				# Central Tendency
+				"Mean":
+				"Median":
+				"Mode":
+				
+				# Dispersion
+				"Standard-Deviation":
+				"Variance":
+			}
+		}
+		...
+	}
+}
+
+
+===
+*) Develop a benchmark dataset that can be used to evaluate the TNNT models: --> CONLL2003
+
+"Barack Obama was president of the USA"
+
+Barack|B-PERSON
+Obama|I-PERSON
+was
+president
+of
+the
+USA|B-GPE
+...
+
+===

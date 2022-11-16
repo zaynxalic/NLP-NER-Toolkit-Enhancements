@@ -1,0 +1,42 @@
+RESULTS:
+
+- Testing set:
+	+ 10 (?) documents: from different datasets, file formats, sizes.
+
+- Aggregation
+	+ general stats: plot of the different (integrated) metrics
+	+ discussion
+
+- PT-DP
+	+ results
+	+ discussion
+
+- Coreference
+	+ results
+	+ discussion
+
+- Browsing
+	+ folder browsing ...
+	+ file browsing ...
+	+ search ...
+	+ // see implemented capabilities in the README.MD file
+	
+- Additional insights
+	+ From the models perspective:
+		. spaCy
+			--- +
+			--- -
+		. Flair
+			--- +
+			--- -
+		. AllenNLP
+			---
+	+ From the categories perspective:
+		. PERSON
+			--- ?
+		. ORGANISATION
+			---
+		. DATE
+			---
+		. MISC
+			---

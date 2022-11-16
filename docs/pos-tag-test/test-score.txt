@@ -1,0 +1,16 @@
+conll_train.txt nltk
+recall = 0.8575183759741875 
+precision = 0.8682025096894085
+
+conll_test.txt nltk
+recall = 0.8605395919294202
+precision = 0.901400019379383
+
+conll_train.txt spacy
+recall = 0.8409651363835295
+precision = 0.7710662571696492
+
+conll_test.txt spacy
+recall = 0.8443017077448555
+precision = 0.7549354418778309
+
